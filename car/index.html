@@ -1,0 +1,138 @@
+<html>
+    <head>
+        <title>Перевірка машини</title>
+        <style>
+            body {
+                padding: 10px;
+            }
+
+            input[type="button"] {
+                border: 1px solid #333;
+                border-radius: 12px;
+                width: 40px;
+                padding: 5px;
+                cursor: pointer;
+                margin-left: 10px;
+                color: #fff;
+            }
+
+            #Clear {
+                background: #cc3333;
+                border-color: #cc3333;
+            }
+
+            #Submit {
+                background: #339933;
+                border-color: #339933;
+            }
+
+            #CarNumber {
+                border: 1px solid #333;
+                border-radius: 2px;
+                width: 100px;
+                padding: 5px;
+                text-transform: uppercase;
+            }
+
+            pre {
+                outline: 1px solid #ccc; 
+                padding: 5px; margin: 5px; 
+            }
+
+            .string { 
+                color: green; 
+            }
+
+            .number { 
+                color: darkorange; 
+            }
+
+            .key { 
+                color: #333;
+                font-weight: bold;
+                text-transform: capitalize;
+            }
+
+        </style>
+        <script type="text/javascript">
+            let CarNumberInput = null;
+            let OutputBlock = null;
+
+            let getJSON = function(url, callback) {
+                let xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.responseType = 'json';
+                xhr.onload = function() {
+                    let status = xhr.status;
+                    if (status === 200) {
+                        callback(null, xhr.response);
+                    } else {
+                        callback(status, xhr.response);
+                    }
+                };
+                xhr.send();
+            }
+
+            function syntaxHighlight(json) {
+                if (typeof json != 'string') {
+                    json = JSON.stringify(json);
+                }
+                json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/null/.test(match)) {
+                        return '';
+                    }
+                    if (cls == "string") {
+                        match = match.slice(1, -1);
+                    } else if (cls == "key") {
+                        match = match.replace("\"", "").replace("\"", "");
+                    }
+                    let res = '<span class="' + cls + '">' + match + '</span>';
+                    if (cls == "key") {
+                        res = "<br/>" + res + " ";
+                    }
+                    return res;
+                });
+            }
+
+            function Init()
+            {
+                CarNumberInput = document.getElementById("CarNumber");
+                OutputBlock = document.getElementById("Output");
+            }
+
+            function Clear()
+            {
+                CarNumberInput.value = "";
+            }
+
+            function Submit()
+            {
+                CarNumberInput.value = CarNumberInput.value.trim();
+                getJSON('https://opendatabot.com/api/v3/public/transport?number=' + CarNumberInput.value,
+                    function (err, data) {
+                        if (err !== null) {
+                            OutputBlock.innerHTML = 'Помилка: ' + err;
+                        } else {
+                            delete data.forDevelopers;
+                            OutputBlock.innerHTML = syntaxHighlight(data).slice(1, -1);
+                        }
+                    });
+            }
+        </script>
+    </head>
+    <body onload="Init()">
+        <input type="text" id="CarNumber" placeholder="номер"/>
+        <input type="button" id="Clear" value="x" onclick="Clear()"/>
+        <input type="button" id="Submit" value=">>" onclick="Submit()"/>
+        <br/>
+        <div id="Output"></div>
+    </body>
+</html>
