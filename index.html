@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Графік чергування батьків на змаганнях</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --secondary: #0ea5e9;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --dark: #0f172a;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-focus: #818cf8;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Navigation / App Header */
+    .app-header {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      color: white;
+      padding: 32px 20px 28px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .title-area h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-trophy {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .title-area p {
+      color: #c7d2fe;
+      font-size: 14px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      border: 1px solid transparent;
+      text-decoration: none;
+    }
+
+    .btn-print {
+      background-color: #ffffff;
+      color: #312e81;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-print:hover {
+      background-color: #f1f5f9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Control Bar: Search & Filters */
+    .controls-wrapper {
+      margin-top: -18px;
+      margin-bottom: 24px;
+      position: sticky;
+      top: 12px;
+      z-index: 50;
+    }
+
+    .controls-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 14px;
+      background: #f8fafc;
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      background: #ffffff;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    /* Tabs Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-sm);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn:hover:not(.active) {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    /* Quick stats bar */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .stat-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dark);
+      line-height: 1.2;
+    }
+
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Duty Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+    }
+
+    .badge-bracelets { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-carpets { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-kitchen { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+    .badge-parade { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-vacuum { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+
+    /* Day / Category Section Styling */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .day-block {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      overflow: hidden;
+      page-break-inside: avoid;
+    }
+
+    .day-header {
+      padding: 16px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .day-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .duty-card {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .duty-card:last-child {
+      border-bottom: none;
+    }
+
+    .duty-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .duty-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .duty-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Timed Slots Grid */
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .slot-item {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+    }
+
+    .slot-item:hover {
+      border-color: #cbd5e1;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .slot-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: #334155;
+      background: #ffffff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .slot-people {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--dark);
+      text-align: right;
+    }
+
+    /* People Tags List */
+    .people-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .person-chip {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .person-chip:hover {
+      background: #e2e8f0;
+    }
+
+    .person-chip .num-bullet {
+      background: #cbd5e1;
+      color: #475569;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    /* Personal Schedule Table */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .schedule-table th {
+      background: #f8fafc;
+      padding: 12px 16px;
+      font-weight: 700;
+      color: #475569;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .schedule-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .schedule-table tr:hover {
+      background: #f8fafc;
+    }
+
+    .schedule-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .person-name {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 14px;
+    }
+
+    .child-name {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .duties-cell-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .duty-pill {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .count-badge {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 12px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .count-badge.high {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .count-badge.medium {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .count-badge.zero {
+      background: #f1f5f9;
+      color: #94a3b8;
+    }
+
+    /* Print Specific Styles */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm 8mm 8mm 8mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 10pt;
+        padding-bottom: 0;
+      }
+
+      .app-header {
+        background: none !important;
+        color: #000000 !important;
+        padding: 0 0 10px 0 !important;
+        box-shadow: none !important;
+        border-bottom: 2px solid #000000;
+        margin-bottom: 12px;
+      }
+
+      .title-area h1 {
+        font-size: 16pt !important;
+        color: #000000 !important;
+      }
+
+      .badge-trophy {
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        background: none !important;
+      }
+
+      .title-area p {
+        color: #444444 !important;
+        font-size: 9pt !important;
+      }
+
+      .controls-wrapper,
+      .header-actions,
+      .nav-tabs,
+      .stats-grid {
+        display: none !important;
+      }
+
+      .view-section {
+        display: block !important;
+      }
+
+      #view-categories {
+        display: none !important; /* Avoid duplicate printing */
+      }
+
+      .print-page-break {
+        page-break-before: always;
+      }
+
+      .day-block {
+        box-shadow: none !important;
+        border: 1px solid #444444 !important;
+        margin-bottom: 12px !important;
+        page-break-inside: avoid;
+      }
+
+      .day-header {
+        background: #f0f0f0 !important;
+        border-bottom: 1px solid #444444 !important;
+        padding: 6px 10px !important;
+      }
+
+      .day-title {
+        font-size: 12pt !important;
+        color: #000000 !important;
+      }
+
+      .duty-card {
+        padding: 8px 10px !important;
+        border-bottom: 1px solid #cccccc !important;
+      }
+
+      .slots-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 6px !important;
+      }
+
+      .slot-item {
+        background: none !important;
+        border: 1px solid #aaaaaa !important;
+        padding: 4px 8px !important;
+      }
+
+      .slot-time {
+        border: 1px solid #666666 !important;
+        font-size: 8.5pt !important;
+        color: #000000 !important;
+      }
+
+      .slot-people {
+        font-size: 9.5pt !important;
+        color: #000000 !important;
+      }
+
+      .person-chip {
+        background: none !important;
+        border: 1px solid #888888 !important;
+        padding: 2px 6px !important;
+        font-size: 9pt !important;
+        color: #000000 !important;
+      }
+
+      .person-chip .num-bullet {
+        background: #dddddd !important;
+        color: #000000 !important;
+      }
+
+      .table-card {
+        box-shadow: none !important;
+        border: 1px solid #444444 !important;
+      }
+
+      .schedule-table {
+        font-size: 9pt !important;
+      }
+
+      .schedule-table th {
+        background: #f0f0f0 !important;
+        color: #000000 !important;
+        border-bottom: 1.5px solid #000000 !important;
+        padding: 6px 8px !important;
+      }
+
+      .schedule-table td {
+        padding: 5px 8px !important;
+        border-bottom: 1px solid #cccccc !important;
+        color: #000000 !important;
+      }
+
+      .badge-bracelets,
+      .badge-carpets,
+      .badge-kitchen,
+      .badge-parade,
+      .badge-vacuum,
+      .duty-pill {
+        background: none !important;
+        border: 1px solid #666666 !important;
+        color: #000000 !important;
+        font-size: 8pt !important;
+        padding: 2px 5px !important;
+      }
+
+      .count-badge {
+        border: 1px solid #666666 !important;
+        background: none !important;
+        color: #000000 !important;
+      }
+
+      .print-header-only {
+        display: block !important;
+        margin-top: 15px;
+        margin-bottom: 8px;
+        font-size: 13pt;
+        font-weight: bold;
+      }
+    }
+
+    .print-header-only {
+      display: none;
+    }
+
+    .note-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: #1e40af;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .warning-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: #92400e;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="title-area">
+          <h1>
+            <span>📋 Графік чергування батьків</span>
+            <span class="badge-trophy">Змагання з гімнастики</span>
+          </h1>
+          <p>Повний розклад обов'язків: Браслети, Килими, Кухня, Паради та Пилососи (Четвер – Субота)</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="exportToCSV()" title="Експортувати список у CSV">
+            📥 Завантажити CSV
+          </button>
+          <button class="btn btn-print" onclick="window.print()">
+            🖨️ Роздрукувати / PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Controls: Search & Tabs -->
+  <div class="container">
+    <div class="controls-wrapper">
+      <div class="controls-card">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="liveSearch" placeholder="Швидкий пошук за прізвищем (напр. Строїч, Гуменюк)..." oninput="handleSearch()">
+        </div>
+        <div class="nav-tabs">
+          <button class="tab-btn active" onclick="switchTab('days', this)">📅 Розклад по днях</button>
+          <button class="tab-btn" onclick="switchTab('categories', this)">📂 За категоріями</button>
+          <button class="tab-btn" onclick="switchTab('personal', this)">👤 Персональний список</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #eef2ff; color: #4f46e5;">👥</div>
+        <div>
+          <div class="stat-val" id="totalParents">35</div>
+          <div class="stat-lbl">Задіяно родин</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #ede9fe; color: #7c3aed;">🎟️</div>
+        <div>
+          <div class="stat-val">26</div>
+          <div class="stat-lbl">Змін на браслетах</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #fee2e2; color: #dc2626;">🥋</div>
+        <div>
+          <div class="stat-val">19</div>
+          <div class="stat-lbl">Чоловік на килимах</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background: #fef3c7; color: #d97706;">☕</div>
+        <div>
+          <div class="stat-val">10</div>
+          <div class="stat-lbl">Чергових на кухні</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 1: BY DAYS -->
+    <div id="view-days" class="view-section active">
+      
+      <!-- ЧЕТВЕР -->
+      <div class="day-block" data-day="thursday">
+        <div class="day-header">
+          <div class="day-title">
+            <span>📌 ЧЕТВЕР</span>
+            <span class="badge" style="background:#e2e8f0; color:#334155;">Підготовчий день</span>
+          </div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">2 види чергувань</span>
+        </div>
+
+        <!-- Килими Четвер -->
+        <div class="duty-card" data-duty-type="carpets">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-carpets">🥋 Килими</span>
+            </div>
+            <span class="badge-time">9 осіб</span>
+          </div>
+          <div style="font-size: 12px; color: #b91c1c; font-weight: 600; margin-bottom: 10px;">⚠️ Також запрошуються всі інші бажаючі, обов'язково потрібні чоловіки!</div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Фафлей</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Андрійців</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Сіліч</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Нагорняк</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Строїч</span>
+            <span class="person-chip"><span class="num-bullet">6</span> Ярмак</span>
+            <span class="person-chip"><span class="num-bullet">7</span> Скавуляк</span>
+            <span class="person-chip"><span class="num-bullet">8</span> Савенкова</span>
+            <span class="person-chip"><span class="num-bullet">9</span> Стоволкова</span>
+          </div>
+        </div>
+
+        <!-- Пилососи Четвер -->
+        <div class="duty-card" data-duty-type="vacuum">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-vacuum">🧹 Пилососи</span>
+            </div>
+            <span class="badge-time">7 осіб</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Нагорняк</span>
+            <span class="person-chip">Ярмак</span>
+            <span class="person-chip">Андрійців</span>
+            <span class="person-chip">Сидоренко</span>
+            <span class="person-chip">Черпак</span>
+            <span class="person-chip">Фоміна</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- П'ЯТНИЦЯ -->
+      <div class="day-block" data-day="friday">
+        <div class="day-header">
+          <div class="day-title">
+            <span>📌 П'ЯТНИЦЯ</span>
+            <span class="badge" style="background:#e0e7ff; color:#3730a3;">1-й день змагань</span>
+          </div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">4 види чергувань</span>
+        </div>
+
+        <!-- Браслети П'ятниця -->
+        <div class="duty-card" data-duty-type="bracelets">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-bracelets">🎟️ Браслети</span>
+            </div>
+            <span class="badge-time">7 змін • 14 осіб</span>
+          </div>
+          <div class="slots-grid">
+            <div class="slot-item">
+              <span class="slot-time">07:30 – 09:30</span>
+              <span class="slot-people">Івасюк, Король</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">09:30 – 11:30</span>
+              <span class="slot-people">Бортник, Скоробогата</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">11:30 – 13:30</span>
+              <span class="slot-people">Перепічка, Ключка</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">13:30 – 15:30</span>
+              <span class="slot-people">Савенкова, Гнатко</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">15:30 – 17:30</span>
+              <span class="slot-people">Фафлей, Івасюк</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">17:30 – 19:30</span>
+              <span class="slot-people">Кічеряк, Строїч</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">19:30 – 21:30</span>
+              <span class="slot-people">Бадега, Клімішина</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Кухня П'ятниця -->
+        <div class="duty-card" data-duty-type="kitchen">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-kitchen">☕ Кухня</span>
+            </div>
+            <span class="badge-time">5 осіб</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Шушлебіна</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Кузьмичук</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Якимів</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Різник</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Солодовська</span>
+          </div>
+        </div>
+
+        <!-- Паради П'ятниця -->
+        <div class="duty-card" data-duty-type="parade">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-parade">🎖️ Паради</span>
+            </div>
+            <span class="badge-time">3 особи</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Івасюк</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Гнатко</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Строїч</span>
+          </div>
+        </div>
+
+        <!-- Пилососи П'ятниця -->
+        <div class="duty-card" data-duty-type="vacuum">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-vacuum">🧹 Пилососи</span>
+            </div>
+            <span class="badge-time">7 осіб</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Нагорняк</span>
+            <span class="person-chip">Ярмак</span>
+            <span class="person-chip">Андрійців</span>
+            <span class="person-chip">Сидоренко</span>
+            <span class="person-chip">Черпак</span>
+            <span class="person-chip">Фоміна</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- СУБОТА -->
+      <div class="day-block" data-day="saturday">
+        <div class="day-header">
+          <div class="day-title">
+            <span>📌 СУБОТА</span>
+            <span class="badge" style="background:#fef3c7; color:#92400e;">Фінальний день змагань</span>
+          </div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">5 видів чергувань</span>
+        </div>
+
+        <!-- Браслети Субота -->
+        <div class="duty-card" data-duty-type="bracelets">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-bracelets">🎟️ Браслети</span>
+            </div>
+            <span class="badge-time">6 змін • 12 осіб</span>
+          </div>
+          <div class="slots-grid">
+            <div class="slot-item">
+              <span class="slot-time">07:30 – 09:30</span>
+              <span class="slot-people">Гуменюк, Бадега</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">09:30 – 11:30</span>
+              <span class="slot-people">Черпак, Гуменюк</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">11:30 – 13:30</span>
+              <span class="slot-people">Гуменюк, Бадега</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">13:30 – 15:30</span>
+              <span class="slot-people">Ветерковська, Король</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">15:30 – 17:30</span>
+              <span class="slot-people">Шикман, Ковальчук</span>
+            </div>
+            <div class="slot-item">
+              <span class="slot-time">17:30 – 19:30</span>
+              <span class="slot-people">Стоволкова, Ветерковська</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Кухня Субота -->
+        <div class="duty-card" data-duty-type="kitchen">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-kitchen">☕ Кухня</span>
+            </div>
+            <span class="badge-time">5 осіб</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Калинюк</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Горлач</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Кузьмичук</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Шушлебіна</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Солодовська</span>
+          </div>
+        </div>
+
+        <!-- Паради Субота -->
+        <div class="duty-card" data-duty-type="parade">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-parade">🎖️ Паради</span>
+            </div>
+            <span class="badge-time">3 особи</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Сіліч</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Фоміна</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Сіренко</span>
+          </div>
+        </div>
+
+        <!-- Килими Субота (Згортання) -->
+        <div class="duty-card" data-duty-type="carpets">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-carpets">🥋 Килими</span>
+            </div>
+            <span class="badge-time">10 осіб</span>
+          </div>
+          <div style="font-size: 12px; color: #b91c1c; font-weight: 600; margin-bottom: 10px;">⚠️ Також запрошуються всі інші бажаючі, обов'язково потрібні чоловіки!</div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Скавуляк</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Строїч</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Клімішина</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Сіренко</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Ковальчук</span>
+            <span class="person-chip"><span class="num-bullet">6</span> Кавака</span>
+            <span class="person-chip"><span class="num-bullet">7</span> Кічеряк</span>
+            <span class="person-chip"><span class="num-bullet">8</span> Шикман</span>
+            <span class="person-chip"><span class="num-bullet">9</span> Король</span>
+            <span class="person-chip"><span class="num-bullet">10</span> Гуменюк</span>
+          </div>
+        </div>
+
+        <!-- Пилососи Субота -->
+        <div class="duty-card" data-duty-type="vacuum">
+          <div class="duty-meta">
+            <div class="duty-name">
+              <span class="badge badge-vacuum">🧹 Пилососи</span>
+            </div>
+            <span class="badge-time">7 осіб</span>
+          </div>
+          <div class="people-tags">
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Нагорняк</span>
+            <span class="person-chip">Ярмак</span>
+            <span class="person-chip">Андрійців</span>
+            <span class="person-chip">Сидоренко</span>
+            <span class="person-chip">Черпак</span>
+            <span class="person-chip">Фоміна</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: BY CATEGORIES -->
+    <div id="view-categories" class="view-section">
+      
+      <!-- Браслети -->
+      <div class="day-block">
+        <div class="day-header">
+          <div class="day-title"><span class="badge badge-bracelets" style="font-size:16px;">🎟️ БРАСЛЕТИ</span></div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">П'ятниця та Субота</span>
+        </div>
+        <div class="duty-card">
+          <div style="font-weight: 700; margin-bottom: 8px; color: #4338ca;">П'ятниця (7 змін по 2 години):</div>
+          <div class="slots-grid" style="margin-bottom: 16px;">
+            <div class="slot-item"><span class="slot-time">07:30 – 09:30</span><span class="slot-people">Івасюк, Король</span></div>
+            <div class="slot-item"><span class="slot-time">09:30 – 11:30</span><span class="slot-people">Бортник, Скоробогата</span></div>
+            <div class="slot-item"><span class="slot-time">11:30 – 13:30</span><span class="slot-people">Перепічка, Ключка</span></div>
+            <div class="slot-item"><span class="slot-time">13:30 – 15:30</span><span class="slot-people">Савенкова, Гнатко</span></div>
+            <div class="slot-item"><span class="slot-time">15:30 – 17:30</span><span class="slot-people">Фафлей, Івасюк</span></div>
+            <div class="slot-item"><span class="slot-time">17:30 – 19:30</span><span class="slot-people">Кічеряк, Строїч</span></div>
+            <div class="slot-item"><span class="slot-time">19:30 – 21:30</span><span class="slot-people">Бадега, Клімішина</span></div>
+          </div>
+          <div style="font-weight: 700; margin-bottom: 8px; color: #4338ca;">Субота (6 змін по 2 години):</div>
+          <div class="slots-grid">
+            <div class="slot-item"><span class="slot-time">07:30 – 09:30</span><span class="slot-people">Гуменюк, Бадега</span></div>
+            <div class="slot-item"><span class="slot-time">09:30 – 11:30</span><span class="slot-people">Черпак, Гуменюк</span></div>
+            <div class="slot-item"><span class="slot-time">11:30 – 13:30</span><span class="slot-people">Гуменюк, Бадега</span></div>
+            <div class="slot-item"><span class="slot-time">13:30 – 15:30</span><span class="slot-people">Ветерковська, Король</span></div>
+            <div class="slot-item"><span class="slot-time">15:30 – 17:30</span><span class="slot-people">Шикман, Ковальчук</span></div>
+            <div class="slot-item"><span class="slot-time">17:30 – 19:30</span><span class="slot-people">Стоволкова, Ветерковська</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Килими -->
+      <div class="day-block">
+        <div class="day-header">
+          <div class="day-title"><span class="badge badge-carpets" style="font-size:16px;">🥋 КИЛИМИ</span></div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Четвер та Субота</span>
+        </div>
+        <div class="duty-card">
+          <div style="font-size: 13px; color: #b91c1c; font-weight: 600; margin-bottom: 12px; background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px;">⚠️ Також запрошуються всі інші бажаючі, обов'язково потрібні чоловіки!</div>
+          <div style="font-weight: 700; margin-bottom: 8px; color: #b91c1c;">Четвер (9 осіб):</div>
+          <div class="people-tags" style="margin-bottom: 16px;">
+            <span class="person-chip">Фафлей</span>
+            <span class="person-chip">Андрійців</span>
+            <span class="person-chip">Сіліч</span>
+            <span class="person-chip">Нагорняк</span>
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Ярмак</span>
+            <span class="person-chip">Скавуляк</span>
+            <span class="person-chip">Савенкова</span>
+            <span class="person-chip">Стоволкова</span>
+          </div>
+          <div style="font-weight: 700; margin-bottom: 8px; color: #b91c1c;">Субота (10 осіб):</div>
+          <div class="people-tags">
+            <span class="person-chip">Скавуляк</span>
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Клімішина</span>
+            <span class="person-chip">Сіренко</span>
+            <span class="person-chip">Ковальчук</span>
+            <span class="person-chip">Кавака</span>
+            <span class="person-chip">Кічеряк</span>
+            <span class="person-chip">Шикман</span>
+            <span class="person-chip">Король</span>
+            <span class="person-chip">Гуменюк</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Кухня -->
+      <div class="day-block">
+        <div class="day-header">
+          <div class="day-title"><span class="badge badge-kitchen" style="font-size:16px;">☕ КУХНЯ</span></div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">П'ятниця та Субота</span>
+        </div>
+        <div class="duty-card">
+          <div style="font-weight: 700; margin-bottom: 8px; color: #b45309;">П'ятниця (5 осіб):</div>
+          <div class="people-tags" style="margin-bottom: 16px;">
+            <span class="person-chip"><span class="num-bullet">1</span> Шушлебіна</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Кузьмичук</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Якимів</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Різник</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Солодовська</span>
+          </div>
+          <div style="font-weight: 700; margin-bottom: 8px; color: #b45309;">Субота (5 осіб):</div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Калинюк</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Горлач</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Кузьмичук</span>
+            <span class="person-chip"><span class="num-bullet">4</span> Шушлебіна</span>
+            <span class="person-chip"><span class="num-bullet">5</span> Солодовська</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Паради -->
+      <div class="day-block">
+        <div class="day-header">
+          <div class="day-title"><span class="badge badge-parade" style="font-size:16px;">🎖️ ПАРАДИ</span></div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">П'ятниця та Субота</span>
+        </div>
+        <div class="duty-card">
+          <div style="font-weight: 700; margin-bottom: 8px; color: #15803d;">П'ятниця (3 особи):</div>
+          <div class="people-tags" style="margin-bottom: 16px;">
+            <span class="person-chip"><span class="num-bullet">1</span> Івасюк</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Гнатко</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Строїч</span>
+          </div>
+          <div style="font-weight: 700; margin-bottom: 8px; color: #15803d;">Субота (3 особи):</div>
+          <div class="people-tags">
+            <span class="person-chip"><span class="num-bullet">1</span> Сіліч</span>
+            <span class="person-chip"><span class="num-bullet">2</span> Фоміна</span>
+            <span class="person-chip"><span class="num-bullet">3</span> Сіренко</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Пилососи -->
+      <div class="day-block">
+        <div class="day-header">
+          <div class="day-title"><span class="badge badge-vacuum" style="font-size:16px;">🧹 ПИЛОСОСИ</span></div>
+          <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">Четвер, П'ятниця, Субота</span>
+        </div>
+        <div class="duty-card">
+          <div style="font-weight: 700; margin-bottom: 8px; color: #0369a1;">Відповідальна група (7 осіб на всі дні):</div>
+          <div class="people-tags">
+            <span class="person-chip">Строїч</span>
+            <span class="person-chip">Нагорняк</span>
+            <span class="person-chip">Ярмак</span>
+            <span class="person-chip">Андрійців</span>
+            <span class="person-chip">Сидоренко</span>
+            <span class="person-chip">Черпак</span>
+            <span class="person-chip">Фоміна</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- VIEW 3: PERSONAL LIST (PRINT-FRIENDLY FULL TABLE) -->
+    <div id="view-personal" class="view-section print-page-break">
+      <div class="print-header-only">Персональний розклад чергувань батьків (За алфавітом)</div>
+      
+      <div class="table-card">
+        <table class="schedule-table" id="personalTable">
+          <thead>
+            <tr>
+              <th style="width: 48px;">№</th>
+              <th style="width: 220px;">Прізвище</th>
+              <th>Призначені обов'язки (День, час, вид чергування)</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Table rows generated dynamically by JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+        // Data definition: Full roster & duties mapping
+    const roster = [
+      { id: 1, surname: "Фафлей", duties: [
+        { type: "bracelets", title: "Браслети (Пт 15:30–17:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" }
+      ]},
+      { id: 2, surname: "Савенкова", duties: [
+        { type: "bracelets", title: "Браслети (Пт 13:30–15:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" }
+      ]},
+      { id: 3, surname: "Стоволкова", duties: [
+        { type: "bracelets", title: "Браслети (Сб 17:30–19:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" }
+      ]},
+      { id: 4, surname: "Фоміна", duties: [
+        { type: "parade", title: "Паради (Сб)", badge: "badge-parade" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 5, surname: "Сіліч", duties: [
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "parade", title: "Паради (Сб)", badge: "badge-parade" }
+      ]},
+      { id: 6, surname: "Солодовська", duties: [
+        { type: "kitchen", title: "Кухня (Пт)", badge: "badge-kitchen" },
+        { type: "kitchen", title: "Кухня (Сб)", badge: "badge-kitchen" }
+      ]},
+      { id: 7, surname: "Шикман", duties: [
+        { type: "bracelets", title: "Браслети (Сб 15:30–17:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 8, surname: "Гнатко", duties: [
+        { type: "bracelets", title: "Браслети (Пт 13:30–15:30)", badge: "badge-bracelets" },
+        { type: "parade", title: "Паради (Пт)", badge: "badge-parade" }
+      ]},
+      { id: 9, surname: "Андрійців", duties: [
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 10, surname: "Скавуляк", duties: [
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 11, surname: "Ярмак", duties: [
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 12, surname: "Перепічка", duties: [
+        { type: "bracelets", title: "Браслети (Пт 11:30–13:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 13, surname: "Скоробогата", duties: [
+        { type: "bracelets", title: "Браслети (Пт 09:30–11:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 14, surname: "Король", duties: [
+        { type: "bracelets", title: "Браслети (Пт 07:30–09:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 13:30–15:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 15, surname: "Шушлебіна", duties: [
+        { type: "kitchen", title: "Кухня (Пт)", badge: "badge-kitchen" },
+        { type: "kitchen", title: "Кухня (Сб)", badge: "badge-kitchen" }
+      ]},
+      { id: 16, surname: "Ключка", duties: [
+        { type: "bracelets", title: "Браслети (Пт 11:30–13:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 17, surname: "Бортник", duties: [
+        { type: "bracelets", title: "Браслети (Пт 09:30–11:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 18, surname: "Пенцко", duties: []},
+      { id: 19, surname: "Якимів", duties: [
+        { type: "kitchen", title: "Кухня (Пт)", badge: "badge-kitchen" }
+      ]},
+      { id: 20, surname: "Кавака", duties: [
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 21, surname: "Ветерковська", duties: [
+        { type: "bracelets", title: "Браслети (Сб 13:30–15:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 17:30–19:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 22, surname: "Нагорняк", duties: [
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 23, surname: "Різник", duties: [
+        { type: "kitchen", title: "Кухня (Пт)", badge: "badge-kitchen" }
+      ]},
+      { id: 24, surname: "Кузьмичук", duties: [
+        { type: "kitchen", title: "Кухня (Пт)", badge: "badge-kitchen" },
+        { type: "kitchen", title: "Кухня (Сб)", badge: "badge-kitchen" }
+      ]},
+      { id: 25, surname: "Кічеряк", duties: [
+        { type: "bracelets", title: "Браслети (Пт 17:30–19:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 26, surname: "Бадега", duties: [
+        { type: "bracelets", title: "Браслети (Пт 19:30–21:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 07:30–09:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 11:30–13:30)", badge: "badge-bracelets" }
+      ]},
+      { id: 27, surname: "Горлач", duties: [
+        { type: "kitchen", title: "Кухня (Сб)", badge: "badge-kitchen" }
+      ]},
+      { id: 28, surname: "Клімішина", duties: [
+        { type: "bracelets", title: "Браслети (Пт 19:30–21:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 29, surname: "Калинюк", duties: [
+        { type: "kitchen", title: "Кухня (Сб)", badge: "badge-kitchen" }
+      ]},
+      { id: 30, surname: "Черпак", duties: [
+        { type: "bracelets", title: "Браслети (Сб 09:30–11:30)", badge: "badge-bracelets" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 31, surname: "Гуменюк", duties: [
+        { type: "bracelets", title: "Браслети (Сб 07:30–09:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 09:30–11:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Сб 11:30–13:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 32, surname: "Строїч", duties: [
+        { type: "bracelets", title: "Браслети (Пт 17:30–19:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Чт)", badge: "badge-carpets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" },
+        { type: "parade", title: "Паради (Пт)", badge: "badge-parade" },
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 33, surname: "Ковальчук", duties: [
+        { type: "bracelets", title: "Браслети (Сб 15:30–17:30)", badge: "badge-bracelets" },
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" }
+      ]},
+      { id: 34, surname: "Сидоренко", duties: [
+        { type: "vacuum", title: "Пилососи (Чт, Пт, Сб)", badge: "badge-vacuum" }
+      ]},
+      { id: 35, surname: "Івасюк", duties: [
+        { type: "bracelets", title: "Браслети (Пт 07:30–09:30)", badge: "badge-bracelets" },
+        { type: "bracelets", title: "Браслети (Пт 15:30–17:30)", badge: "badge-bracelets" },
+        { type: "parade", title: "Паради (Пт)", badge: "badge-parade" }
+      ]},
+      { id: 36, surname: "Сіренко", duties: [
+        { type: "carpets", title: "Килими (Сб)", badge: "badge-carpets" },
+        { type: "parade", title: "Паради (Сб)", badge: "badge-parade" }
+      ]}
+    ];
+
+    // Sort roster alphabetically by surname for convenient lookup
+    const sortedRoster = [...roster].sort((a, b) => a.surname.localeCompare(b.surname, 'uk'));
+
+    // Render Table
+    function renderTable(data = sortedRoster) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 24px; color: var(--text-muted);">Нічого не знайдено за запитом</td></tr>';
+        return;
+      }
+
+      data.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+
+        const dutiesHtml = p.duties.length > 0 
+          ? p.duties.map(d => `<span class="duty-pill ${d.badge}">${d.title}</span>`).join('')
+          : '<span style="color: var(--text-muted); font-style: italic; font-size: 13px;">— обов\'язків не призначено —</span>';
+
+        tr.innerHTML = `
+          <td style="font-weight: 600; color: var(--text-muted);">${idx + 1}</td>
+          <td>
+            <div class="person-name">${p.surname}</div>
+          </td>
+          <td><div class="duties-cell-list">${dutiesHtml}</div></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Switch Tabs
+    function switchTab(tabKey, btnElement) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+      btnElement.classList.add('active');
+      const target = document.getElementById(`view-${tabKey}`);
+      if (target) target.classList.add('active');
+    }
+
+    // Live Search
+    function handleSearch() {
+      const q = document.getElementById('liveSearch').value.toLowerCase().trim();
+
+      // Filter personal table
+      const filtered = sortedRoster.filter(p => 
+        p.surname.toLowerCase().includes(q) ||
+        p.duties.some(d => d.title.toLowerCase().includes(q))
+      );
+      renderTable(filtered);
+
+      // Filter chips and slot items across day view
+      const allChips = document.querySelectorAll('.person-chip');
+      allChips.forEach(chip => {
+        if (!q || chip.textContent.toLowerCase().includes(q)) {
+          chip.style.opacity = '1';
+          chip.style.background = q ? '#fde68a' : '';
+          chip.style.borderColor = q ? '#d97706' : '';
+        } else {
+          chip.style.opacity = '0.25';
+          chip.style.background = '';
+          chip.style.borderColor = '';
+        }
+      });
+
+      const allSlots = document.querySelectorAll('.slot-item');
+      allSlots.forEach(slot => {
+        if (!q || slot.textContent.toLowerCase().includes(q)) {
+          slot.style.opacity = '1';
+          slot.style.borderColor = q ? '#818cf8' : '';
+        } else {
+          slot.style.opacity = '0.25';
+          slot.style.borderColor = '';
+        }
+      });
+    }
+
+    // Export to CSV
+    function exportToCSV() {
+      let csv = "№,Прізвище,Обов'язки\n";
+      sortedRoster.forEach((p, idx) => {
+        const dutiesStr = p.duties.map(d => d.title).join('; ');
+        csv += `"${idx + 1}","${p.surname}","${dutiesStr}"\n`;
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", "графік_чергувань_батьків.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Initial render
+    renderTable();
+  </script>
+</body>
+</html>
